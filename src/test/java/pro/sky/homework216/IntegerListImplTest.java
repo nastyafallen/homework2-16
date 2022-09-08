@@ -1,11 +1,10 @@
 package pro.sky.homework216;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import pro.sky.homework216.exception.MyIllegalArgumentException;
-
 import java.util.Arrays;
 import java.util.stream.Collectors;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -15,34 +14,30 @@ class IntegerListImplTest {
 
     @Test
     public void addPositiveTest() {
-        int test = 34;
-        assertThat(out.add(34)).isEqualTo(test);
-        assertThat(out.add(0, 34)).isEqualTo(test);
+        out.add(34);
+        assertThat(out.get(0)).isEqualTo(34);
+    }
+
+    @Test
+    public void addPositiveTest2() {
+        out.add(65);
+        out.add(65);
+        out.add(26);
+        out.add(7);
+        out.add(0);
+        Assertions.assertDoesNotThrow(() -> out.add(123));
     }
 
     @Test
     public void addNegativeTest() {
-        int test = 9;
-        out.add(test);
-        out.add(test);
-        out.add(test);
-        out.add(test);
-        out.add(test);
         assertThatExceptionOfType(MyIllegalArgumentException.class)
-                .isThrownBy(() -> out.add(101));
-    }
-
-    @Test
-    public void addNegativeTest2() {
-        int test = 7;
-        assertThatExceptionOfType(MyIllegalArgumentException.class)
-                .isThrownBy(() -> out.add(-1, test));
+                .isThrownBy(() -> out.add(-1, 7));
     }
 
     @Test
     public void setPositiveTest() {
-        int test = 123;
-        assertThat(out.set(0, 123)).isEqualTo(test);
+        out.set(3, 123);
+        assertThat(out.get(3)).isEqualTo(123);
     }
 
     @Test
@@ -69,7 +64,7 @@ class IntegerListImplTest {
     public void removeByIndexPositiveTest() {
         out.add(1, 66);
         out.removeByIndex(1);
-        assertThat(out.contains(66)).isFalse();
+        assertThat(out.indexOf(66)).isEqualTo(-1);
         assertThat(out.isEmpty()).isTrue();
     }
 
@@ -81,7 +76,11 @@ class IntegerListImplTest {
 
     @Test
     public void containsPositiveTest() {
+        out.add(56);
         out.add(22);
+        out.add(1);
+        out.add(9);
+        out.add(82);
         assertThat(out.contains(22)).isTrue();
     }
 
