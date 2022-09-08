@@ -1,13 +1,15 @@
 package pro.sky.homework216;
 
 import pro.sky.homework216.exception.MyIllegalArgumentException;
+
+import java.util.Arrays;
 import java.util.Objects;
 
 public class IntegerListImpl implements IntegerList {
     int item;
     int index;
     private int capacity;
-    private final Integer[] arrayListInteger;
+    private Integer[] arrayListInteger;
 
     public IntegerListImpl() {
         arrayListInteger = new Integer[5];
@@ -34,7 +36,7 @@ public class IntegerListImpl implements IntegerList {
     @Override
     public int add(int item) {
         if (capacity >= arrayListInteger.length) {
-            throw new MyIllegalArgumentException("Превышение допустимых размеров массива!");
+            grow();
         }
         arrayListInteger[capacity++] = item;
         return item;
@@ -42,11 +44,9 @@ public class IntegerListImpl implements IntegerList {
 
     @Override
     public int add(int index, int item) {
-        if (index < 0 || index > arrayListInteger.length) {
-            throw new MyIllegalArgumentException("Ввод некорректных данных!");
-        }
+        checkIndex(index);
         if (capacity >= arrayListInteger.length) {
-            throw new MyIllegalArgumentException("Превышение допустимых размеров массива!");
+            grow();
         }
         for (int i = arrayListInteger.length-1; i > index; i--) {
             arrayListInteger[i] = arrayListInteger[i-1];
@@ -58,9 +58,7 @@ public class IntegerListImpl implements IntegerList {
 
     @Override
     public int set(int index, int item) {
-        if (index < 0 || index > arrayListInteger.length) {
-            throw new MyIllegalArgumentException("Ввод некорректных данных!");
-        }
+        checkIndex(index);
         arrayListInteger[index] = item;
         return item;
     }
@@ -84,9 +82,7 @@ public class IntegerListImpl implements IntegerList {
 
     @Override
     public Integer removeByIndex(int index) {
-        if (index < 0 || index > arrayListInteger.length) {
-            throw new MyIllegalArgumentException("Ввод некорректных данных!");
-        }
+        checkIndex(index);
         for (int i = index; i < arrayListInteger.length-1; i++) {
             arrayListInteger[i] = arrayListInteger[i+1];
         }
@@ -97,23 +93,8 @@ public class IntegerListImpl implements IntegerList {
 
     @Override
     public boolean contains(int item) {
-        sort();
-
-        int min = 0;
-        int max = capacity - 1;
-
-        while (min <= max) {
-            int mid = (min + max) / 2;
-            if (Objects.equals(item, arrayListInteger[mid])) {
-                return true;
-            }
-            if (item < arrayListInteger[mid]) {
-                max = mid - 1;
-            } else {
-                min = mid + 1;
-            }
-        }
-        return false;
+        quickSort(arrayListInteger, 0, arrayListInteger.length-1);
+        return (binarySearch(item));
     }
 
     @Override
@@ -142,9 +123,7 @@ public class IntegerListImpl implements IntegerList {
 
     @Override
     public int get(int index) {
-        if (index < 0 || index > arrayListInteger.length) {
-            throw new MyIllegalArgumentException("Ввод некорректных данных!");
-        }
+        checkIndex(index);
         return arrayListInteger[index];
     }
 
@@ -191,15 +170,64 @@ public class IntegerListImpl implements IntegerList {
         return result;
     }
 
-    private void sort() {
-        for (int i = 1; i < capacity; i++) {
-            int temp = arrayListInteger[i];
-            int j = i;
-            while (j > 0 && arrayListInteger[j - 1] >= temp) {
-                arrayListInteger[j] = arrayListInteger[j - 1];
-                j--;
-            }
-            arrayListInteger[j] = temp;
+    private void checkIndex(int index) {
+        if (index < 0 || index > arrayListInteger.length) {
+            throw new MyIllegalArgumentException("Ввод некорректных данных!");
         }
+    }
+
+    private void grow() {
+            arrayListInteger = Arrays.copyOf(arrayListInteger, capacity + capacity/2);
+    }
+
+    private static void quickSort(Integer[] arr, int begin, int end) {
+        if (begin < end) {
+            int partitionIndex = partition(arr, begin, end);
+
+            quickSort(arr, begin, partitionIndex - 1);
+            quickSort(arr, partitionIndex + 1, end);
+        }
+    }
+
+    private static int partition(Integer[] arr, int begin, int end) {
+        int pivot = arr[end];
+        int i = (begin - 1);
+
+        for (int j = begin; j < end; j++) {
+            if (arr[j] <= pivot) {
+                i++;
+
+                swapElements(arr, i, j);
+            }
+        }
+
+        swapElements(arr, i + 1, end);
+        return i + 1;
+    }
+
+    private static void swapElements(Integer[] arr, int left, int right) {
+        int temp = arr[left];
+        arr[left] = arr[right];
+        arr[right] = temp;
+    }
+
+    private boolean binarySearch(int element) {
+        int min = 0;
+        int max = arrayListInteger.length - 1;
+
+        while (min <= max) {
+            int mid = (min + max) / 2;
+
+            if (element == arrayListInteger[mid]) {
+                return true;
+            }
+
+            if (element < arrayListInteger[mid]) {
+                max = mid - 1;
+            } else {
+                min = mid + 1;
+            }
+        }
+        return false;
     }
 }
